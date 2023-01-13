@@ -4,10 +4,17 @@ import 'package:pock_notification/custom_local_notification/custom_local_notific
 
 import '../main.dart';
 
-class FirebaseMessagingService {
+abstract class NotificationService {
+  Future<void> initialize();
+
+  Future<String> getDeviceToken();
+}
+
+class FirebaseMessagingService implements NotificationService {
   final CustomLocalNotification customLocalNotification =
       CustomLocalNotification();
 
+  @override
   Future<void> initialize() async {
     await FirebaseMessaging //
         .instance
@@ -16,11 +23,12 @@ class FirebaseMessagingService {
       alert: true,
       sound: true,
     );
-    getDeviceFirebaseToken();
+    getDeviceToken();
     _onMessage();
   }
 
-  Future<String> getDeviceFirebaseToken() async {
+  @override
+  Future<String> getDeviceToken() async {
     final token = await FirebaseMessaging.instance.getToken();
     debugPrint('=======================');
     debugPrint('$token');
@@ -39,7 +47,7 @@ class FirebaseMessagingService {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      navigatorKey.currentState?.pushNamed(message.data['rout']);
+      navigatorKey.currentState?.pushNamed(message.data['route']);
     });
   }
 }
