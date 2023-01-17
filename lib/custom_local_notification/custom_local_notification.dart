@@ -1,60 +1,60 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+class CustomNotificationData {
+  final int id;
+  final String? title;
+  final String? body;
+  final String? payload;
+
+  const CustomNotificationData({
+    required this.id,
+    required this.title,
+    required this.body,
+    this.payload,
+  });
+}
+
 class CustomLocalNotification {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-  late AndroidNotificationChannel channel;
+  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  late AndroidNotificationDetails androidDetails;
+  late NotificationDetails notificationDetails;
 
   CustomLocalNotification() {
-    channel = const AndroidNotificationChannel(
-      'Hy importance channel',
-      'High importance Notifications',
-      description: 'blablalbla',
-      importance: Importance.max,
-    );
-
-    _configureAndroid().then((value) {
-      flutterLocalNotificationsPlugin = value;
-      inicializeNotifications();
-    });
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    inicializeNotifications();
   }
 
-  Future<FlutterLocalNotificationsPlugin> _configureAndroid() async {
-    var flutterLocalNotificationPlugin = FlutterLocalNotificationsPlugin();
-
+  inicializeNotifications() async {
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-
-    return flutterLocalNotificationPlugin;
-  }
-
-  inicializeNotifications() {
+        ?.requestPermission();
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    flutterLocalNotificationsPlugin.initialize(
+    await flutterLocalNotificationsPlugin.initialize(
       const InitializationSettings(android: android),
+    );
+
+    androidDetails = const AndroidNotificationDetails(
+      'id_1',
+      'andoridNotification',
+      channelDescription: 'Notificações do android',
+      importance: Importance.max,
+      priority: Priority.max,
+    );
+
+    notificationDetails = NotificationDetails(
+      android: androidDetails,
     );
   }
 
-  androidNotification(
-    RemoteNotification notification,
-    AndroidNotification android,
-  ) {
+  showNotification(CustomNotificationData notificationData) {
     flutterLocalNotificationsPlugin.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          channelDescription: channel.description,
-          icon: android.smallIcon,
-        ),
-      ),
+      notificationData.id,
+      notificationData.title,
+      notificationData.body,
+      notificationDetails,
+      payload: notificationData.payload,
     );
   }
 }

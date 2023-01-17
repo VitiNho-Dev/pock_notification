@@ -42,7 +42,12 @@ class FirebaseMessagingService implements NotificationService {
       AndroidNotification? android = message.notification?.android;
 
       if (notification != null && android != null) {
-        customLocalNotification.androidNotification(notification, android);
+        final custoomNotificationData = CustomNotificationData(
+          id: notification.hashCode,
+          title: notification.title,
+          body: notification.body,
+        );
+        customLocalNotification.showNotification(custoomNotificationData);
       }
     });
 
